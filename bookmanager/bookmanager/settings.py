@@ -15,6 +15,18 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# print(__file__)
+# C:\Users\workspace\美多商城\django_base\bookmanager\bookmanager\settings.py
+
+# print(os.path.abspath(__file__))
+# C:\Users\workspace\美多商城\django_base\bookmanager\bookmanager\settings.py
+
+# dirname      获取文件的目录
+# os.path.dirname(os.path.abspath(__file__))
+# C:\Users\workspace\美多商城\django_base\bookmanager\bookmanager
+
+# BASE_DIR = C:\Users\workspace\美多商城\django_base\bookmanager\
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -23,9 +35,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k3v(fo%18k&88seqv*f^v@!5s&8w=4=rqiv1(tji80pxg8!k*2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG是调试模式
+# 在我们开发的时候，我们需要看到更多的信息，所以需要开启debug模式
+# 当我们的程序上线之后，就改为False
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# 允许以什么样的形式来访问我们的项目，默认是127.0.0.1
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -56,7 +72,8 @@ ROOT_URLCONF = 'bookmanager.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # 告知系统，我们的模板文件放在哪里
+        'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
