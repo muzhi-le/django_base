@@ -3,5 +3,5 @@ from book.views import index
 
 
 urlpatterns = [
-    path('index/', index)
+    path('home/', index)
 ]
