@@ -6,6 +6,19 @@ from django.shortcuts import render
 from book.models import BookInfo
 def index(request):
 
+    [book.id for book in BookInfo.objects.all()]
+    [book.id for book in BookInfo.objects.all()]
+    [book.id for book in BookInfo.objects.all()]
+
+    # 缓存
+    books = BookInfo.objects.all()
+    [book.id for book in books]
+    [book.id for book in books]
+    [book.id for book in books]
+
+    # 限制查询结果集，用切片处理
+    books = BookInfo.objects.all()[0:2]
+
     # 在这里实现，增删改查
     books = BookInfo.objects.all()
     print(books)
@@ -80,40 +93,40 @@ BookInfo.objects.count()
 # 模型类名.objects.get(属性名__运算符=值)          获取1个结果 或者 异常
 
 # 查询编号为1的图书
-book = BookInfo.objects.get(id=1)       # 简写形式  (属性名=值)
-book = BookInfo.objects.get(id__exact=1)   # 完整形式  (id__exact=1)
+BookInfo.objects.get(id=1)       # 简写形式  (属性名=值)
+BookInfo.objects.get(id__exact=1)   # 完整形式  (id__exact=1)
 BookInfo.objects.get(pk=1)  # pk primary key 主键
 
-book = BookInfo.objects.get(id=1)        # 得到的是一个
-book = BookInfo.objects.filter(id=1)     # 得到的是列表
+BookInfo.objects.get(id=1)        # 得到的是一个
+BookInfo.objects.filter(id=1)     # 得到的是列表
 
 # 查询书名包含'湖'的图书
-book = BookInfo.objects.filter(name__contains="湖")
+BookInfo.objects.filter(name__contains="湖")
 # 查询书名以'部'结尾的图书
-book = BookInfo.objects.filter(name__endswith="部")
+BookInfo.objects.filter(name__endswith="部")
 # 查询书名为空的图书
 # select * from bookinfo where name is null;
-book = BookInfo.objects.filter(name__isnull=True)
+BookInfo.objects.filter(name__isnull=True)
 
 # 查询编号为1或3或5的图书
 # select * from bookinfo where id in (1,3,5);
-book = BookInfo.objects.filter(id__in=[1, 3, 5])
+BookInfo.objects.filter(id__in=[1, 3, 5])
 
 # 查询编号大于3的图书
 # 大于    gt      great  大的
 # 大于等于 gte     equal  相等
 # 小于    lt
 # 小于等于 lte
-book = BookInfo.objects.filter(id__gt=3)
+BookInfo.objects.filter(id__gt=3)
 
 # 查询编号不等于3的书籍
-book = BookInfo.objects.exclude(id=3)
+BookInfo.objects.exclude(id=3)
 
 # 查询1980年发表的图书
-book = BookInfo.objects.filter(pub_date__year=1980)
+BookInfo.objects.filter(pub_date__year=1980)
 
 # 查询1990年1月1日后发表的图书
-book = BookInfo.objects.filter(pub_date__gt="1990-1-1")
+BookInfo.objects.filter(pub_date__gt="1990-1-1")
 
 # =========== F对象 ===========
 from django.db.models import F
@@ -143,5 +156,52 @@ from django.db.models import Q
 BookInfo.objects.filter(Q(readcount__gt=20) | Q(id__lt=3))
 
 # 查询编号不等于3的书籍
-book = BookInfo.objects.exclude(id=3)
-book = BookInfo.objects.filter(~Q(id=3))
+BookInfo.objects.exclude(id=3)
+BookInfo.objects.filter(~Q(id=3))
+
+# =========== 聚合函数 =========
+
+from django.db.models import Sum,Max,Min,Avg,Count
+
+# 模型类名.objects.aggregate(Xxx("字段名"))
+# 统计所有书籍的阅读量总共有多少个
+BookInfo.objects.aggregate(Sum("readcount"))
+
+# ============== 排序 ================
+# 根据阅读量排序
+# select * from bookinfo order by readcount;    #  SQL语句写法，阅读量从小到大
+# select * from bookinfo order by readcount desc;   #  SQL语句写法，阅读量从大到小
+BookInfo.objects.all().order_by("readcount")  # 阅读量从小到大排序
+BookInfo.objects.all().order_by("-readcount")   # 阅读量从大到小排序
+
+# ============= 级联查询 ==========
+
+# 查询书籍为1的所有人物信息
+# 获取了id为1的书籍
+book = BookInfo.objects.get(id=1)  # 先找到书籍
+book.peopleinfo_set.all()          # 通过书籍找人物，形成关联查询，BookInfo.objects.filter(book=1)也能实现相同效果
+
+# 查询人物为1的书籍信息
+person = PeopleInfo.objects.get(id=1)
+person.book.name    # 人物信息
+person.book.readcount   # 阅读量信息
+
+# ========= 关联过滤查询 ==========
+
+# 语法格式：
+# 查询1的书籍，条件为n
+# 模型类名.objects.filter(关联模型类名小写__字段名__运算符=值)
+
+# 查询图书，要求图书人物为“郭靖”
+BookInfo.objects.filter(peopleinfo__name__exact="郭靖")
+BookInfo.objects.filter(peopleinfo__name="郭靖")
+
+# 查询图书，要求图书中人物的描述包含“八”
+BookInfo.objects.filter(peopleinfo__description__contains="八")
+
+# 查询书名为“天龙八部”的所有人物
+PeopleInfo.objects.filter(book__name="天龙八部")
+PeopleInfo.objects.filter(book__name__exact="天龙八部")
+
+# 查询图书阅读量大于30的所有人物
+PeopleInfo.objects.filter(book__readcount__gt=30)
